@@ -1,0 +1,170 @@
+m255
+K3
+z0
+13
+cModel Technology
+dC:\Users\Hamdi\Desktop\convolution
+Eadd1
+Z0 w1432232978
+Z1 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z2 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z3 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+Z4 dG:/VHDL/convolution
+Z5 8G:/VHDL/convolution/add1.vhd
+Z6 FG:/VHDL/convolution/add1.vhd
+l0
+L6
+VkX<48ZEG0z2]c3C;cTI2=1
+!s100 7U@CO1XmF0dN5P:eenKIj3
+Z7 OP;C;10.4a;61
+32
+Z8 !s110 1478381160
+!i10b 1
+Z9 !s108 1478381158.000000
+Z10 !s90 -reportprogress|300|-work|work|G:/VHDL/convolution/add1.vhd|
+Z11 !s107 G:/VHDL/convolution/add1.vhd|
+!i113 1
+Z12 o-work work -O0
+Z13 tExplicit 1
+Artl
+R1
+R2
+R3
+DEx4 work 4 add1 0 22 kX<48ZEG0z2]c3C;cTI2=1
+l21
+L17
+VlFaO^3G4J7[_XLAi?>o4G0
+!s100 kzI=8?ALWd>oY=D[m@Q4o1
+R7
+32
+R8
+!i10b 1
+R9
+R10
+R11
+!i113 1
+R12
+R13
+Econv1
+Z14 w1477843474
+R1
+R2
+R3
+R4
+Z15 8conv1.vhd
+Z16 Fconv1.vhd
+l0
+L9
+V@E=WN:`Qoogg?Z:VcUj<h2
+!s100 nBDO7fHWIoF0]mI`a`IA82
+R7
+32
+Z17 !s110 1478381176
+!i10b 1
+Z18 !s108 1478381174.000000
+Z19 !s90 -reportprogress|300|conv1.vhd|
+Z20 !s107 conv1.vhd|
+!i113 1
+o-O0
+R13
+Artl
+R1
+R2
+R3
+DEx4 work 5 conv1 0 22 @E=WN:`Qoogg?Z:VcUj<h2
+l66
+L21
+V5LjdYfHkQLFkL2zPl`o[I2
+!s100 T@gZiFmzEXX?8`HRH=;jN1
+R7
+32
+R17
+!i10b 1
+R18
+R19
+R20
+!i113 1
+o-O0
+R13
+Econv1_tb
+Z21 w1477843262
+R1
+R2
+R3
+R4
+Z22 8conv1_tb.vhd
+Z23 Fconv1_tb.vhd
+l0
+L9
+VzCb?ROPFMIGiBn1OoNc0b1
+!s100 cfEY;@0:CEgAfRJ<5NXG:0
+R7
+32
+R17
+!i10b 1
+Z24 !s108 1478381175.000000
+Z25 !s90 -reportprogress|300|conv1_tb.vhd|
+Z26 !s107 conv1_tb.vhd|
+!i113 1
+o-O0
+R13
+Abench
+R1
+R2
+R3
+DEx4 work 8 conv1_tb 0 22 zCb?ROPFMIGiBn1OoNc0b1
+l33
+L12
+V[FeUT0FZQQ>jEQKPB_6nX3
+Z27 !s100 ]NzgE;D^mVlLFz^FW;h1g1
+R7
+32
+R17
+!i10b 1
+R24
+R25
+R26
+!i113 1
+o-O0
+R13
+Emult1
+Z28 w1432229602
+R1
+R2
+R3
+R4
+Z29 8G:/VHDL/convolution/mult1.vhd
+Z30 FG:/VHDL/convolution/mult1.vhd
+l0
+L6
+V7Ab6D@0NBdfDlY`EWo^?[1
+!s100 8MSHo3h5mR5b2@QBP=XDl0
+R7
+32
+Z31 !s110 1478381162
+!i10b 1
+Z32 !s108 1478381160.000000
+Z33 !s90 -reportprogress|300|-work|work|G:/VHDL/convolution/mult1.vhd|
+Z34 !s107 G:/VHDL/convolution/mult1.vhd|
+!i113 1
+R12
+R13
+Artl
+R1
+R2
+R3
+DEx4 work 5 mult1 0 22 7Ab6D@0NBdfDlY`EWo^?[1
+l21
+L17
+V0JiDAWRb`[O4QDMKBUli23
+!s100 <z;PmU99:d@b7P6dM;73W2
+R7
+32
+R31
+!i10b 1
+R32
+R33
+R34
+!i113 1
+R12
+R13

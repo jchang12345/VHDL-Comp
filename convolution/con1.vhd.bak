@@ -1,0 +1,299 @@
+----------------
+-- Hamdi Abdelbagi
+-- XCORR Example
+---------------
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
+entity xcorr1 is 	
+  port
+    (
+    i_clk            : in    std_logic;
+    i_rst            : in    std_logic;
+    i_tx             : in    signed( 15 downto 0 );	
+    i_rx             : in    signed( 15 downto 0 );	
+    o_xcorr          :   out signed( 31 downto 0 );
+    o_cnt_max		 :   out integer;
+    o_valid_max		 :   out std_logic
+    );  	
+end xcorr1;	
+
+architecture rtl of xcorr1 is 
+  
+  type   t_rx         is array ( 2000 downto 1 ) of signed( 15 downto 0 ); 
+  signal s_rx         : t_rx := ( others => ( others => '0' ) );	   
+  signal s_tx         : t_rx := ( others => ( others => '0' ) );
+  type   t_mult       is array ( 2000 downto 1 ) of signed( 31 downto 0 );
+  signal s_mult       : t_mult := ( others => ( others => '0' ) );
+  type   t_out1000    is array ( 1000 downto 1 ) of signed( 31 downto 0 );
+  signal s_out1000    : t_out1000 := ( others => ( others => '0' ) ); 
+  type   t_out500     is array (  500 downto 1 ) of signed( 31 downto 0 );
+  signal s_out500     : t_out500 := ( others => ( others => '0' ) ); 
+  type   t_out250     is array (  250 downto 1 ) of signed( 31 downto 0 );
+  signal s_out250     : t_out250 := ( others => ( others => '0' ) ); 
+  type   t_out128     is array (  128 downto 1 ) of signed( 31 downto 0 );
+  signal s_out128     : t_out128 := ( others => ( others => '0' ) );
+  type   t_out64      is array (   64 downto 1 ) of signed( 31 downto 0 );
+  signal s_out64      : t_out64 := ( others => ( others => '0' ) ); 
+  type   t_out32      is array (   32 downto 1 ) of signed( 31 downto 0 );
+  signal s_out32      : t_out32 := ( others => ( others => '0' ) );
+  type   t_out16      is array (   16 downto 1 ) of signed( 31 downto 0 );
+  signal s_out16      : t_out16 := ( others => ( others => '0' ) );   
+  type   t_out8       is array (    8 downto 1 ) of signed( 31 downto 0 );
+  signal s_out8       : t_out8 := ( others => ( others => '0' ) );										 
+  type   t_out4       is array (    4 downto 1 ) of signed( 31 downto 0 );
+  signal s_out4       : t_out4 := ( others => ( others => '0' ) );	
+  type   t_out2       is array (    2 downto 1 ) of signed( 31 downto 0 );
+  signal s_out2       : t_out2 := ( others => ( others => '0' ) );	
+  signal s_xcorr1     : signed( 31 downto 0 ); 
+  signal xcorr_max    : signed( 31 downto 0 );
+  signal cnt_2000_z 	: integer range 0 to 2001;
+  signal cnt_4000_z	: integer range 0 to 4001;
+  signal cnt_max 	    : integer range 0 to 4001;
+  signal s_valid_max	: std_logic := '0';  
+  
+  component mult1 is 	
+    port
+      ( 
+      i_clk       : in    std_logic;
+      i_rst       : in    std_logic;
+      i_data1     : in    signed( 15 downto 0 );
+      i_data2     : in    signed( 15 downto 0 );
+      o_mult      :   out signed( 31 downto 0 )
+      );  	
+  end component;
+  
+  component add1 is 
+    port
+      ( 
+      i_clk       : in    std_logic;
+      i_rst       : in    std_logic;
+      i_data1     : in    signed( 31 downto 0 );
+      i_data2     : in    signed( 31 downto 0 );
+      o_add       :   out signed( 31 downto 0 )
+      );  	
+  end component;
+  
+begin
+  
+  o_xcorr     <= s_xcorr1;
+  o_cnt_max   <= cnt_max; 
+  o_valid_max <= s_valid_max;
+  
+  max_corr1 : process( i_clk )
+  begin 
+    if ( rising_edge ( i_clk ) ) then
+      if ( i_rst = '1' ) then
+        cnt_max   <= 0; 
+        xcorr_max <= ( others => '0' );
+      elsif (xcorr_max <= s_xcorr1) then 
+        xcorr_max <= s_xcorr1;	
+        cnt_max   <= cnt_4000_z;
+      end if;
+    end if;
+  end process;
+  
+  xcorr_max11 : process( i_clk )
+  begin 
+    if ( rising_edge ( i_clk ) ) then
+      if ( i_rst = '1' ) then	
+        s_valid_max <= '0';
+      elsif ( cnt_4000_z = 3999 ) then 
+        s_valid_max <= '1';
+      else
+        s_valid_max <= '0';
+      end if;
+    end if;
+  end process;
+  
+  Counter2000 : process( i_clk )
+  begin 
+    if ( rising_edge ( i_clk ) ) then
+      if ( i_rst = '1' ) then
+        cnt_2000_z <= 1;		
+      else 
+        cnt_2000_z <= cnt_2000_z + 1; 
+        if ( cnt_2000_z = 2000 ) then 
+          cnt_2000_z <= 2000;	
+        end if;
+      end if;
+    end if;
+  end process;
+  
+  CounterDown : process( i_clk )
+  begin 
+    if ( rising_edge ( i_clk ) ) then
+      if ( i_rst = '1' ) then
+        cnt_4000_z <= 1;		
+      else 
+        cnt_4000_z <= cnt_4000_z + 1; 
+        if ( cnt_4000_z = 4000 ) then 
+          cnt_4000_z <= 4000;	
+        end if;
+      end if;
+    end if;
+  end process;
+  
+  s_tx11:process( i_clk, i_rst )
+  begin
+    if( i_rst = '1') then		
+      s_tx <= ( others => ( others => '0' ) ); 
+    elsif ( rising_edge ( i_clk ) ) then  
+      s_tx(cnt_2000_z) <= i_tx; 
+    end if;	
+  end process;
+  
+  s_rx11:process( i_clk, i_rst )
+  begin
+    if( i_rst = '1') then		
+      s_rx <= ( others => ( others => '0' ) ); 
+    elsif ( rising_edge ( i_clk ) ) then  
+      s_rx <=  s_rx ( 1999 downto 1 ) & i_rx; 
+    end if;	
+  end process;   
+  
+  uu3:for i in 1 to 2000 generate
+    mult_2000 : mult1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_tx( 2001 - i ),
+      i_data2 => s_rx( i ),
+      o_mult  => s_mult(i)
+      );
+  end generate;
+  
+  add1000:for i in 1 to 1000 generate
+    add_1000 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_mult(i*2 - 1),
+      i_data2 => s_mult(i*2),
+      o_add   => s_out1000(i)
+      );
+  end generate;
+  
+  add500:for i in 1 to 500 
+    generate
+    add_500 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_out1000(i*2 - 1),
+      i_data2 => s_out1000(i*2),
+      o_add   => s_out500(i)
+      );
+  end generate;
+  
+  add250:for i in 1 to 250 generate
+    add_250 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_out500(i*2 - 1),
+      i_data2 => s_out500(i*2),
+      o_add   => s_out250(i)
+      );
+  end generate;
+  
+  add128:for i in 1 to 125 generate
+    add_128 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_out250(i*2 - 1),
+      i_data2 => s_out250(i*2),
+      o_add   => s_out128(i)		
+      ); 
+  end generate;
+  
+  add64:for i in 1 to 64 generate
+    add_64 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_out128(i*2 - 1),
+      i_data2 => s_out128(i*2),
+      o_add   => s_out64(i)		
+      );
+  end generate;
+  
+  add32:for i in 1 to 32 generate
+    add_32 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_out64(i*2 - 1),
+      i_data2 => s_out64(i*2),
+      o_add   => s_out32(i)		
+      );
+  end generate;
+  
+  add16:for i in 1 to 16 generate
+    add_16 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_out32(i*2 - 1),
+      i_data2 => s_out32(i*2),
+      o_add   => s_out16(i)		
+      ); 
+  end generate;
+  
+  add8:for i in 1 to 8 generate
+    add_8 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_out16(i*2 - 1),
+      i_data2 => s_out16(i*2),
+      o_add   => s_out8(i)		
+      );
+  end generate;
+  
+  add4:for i in 1 to 4 generate
+    add_4 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_out8(i*2 - 1),
+      i_data2 => s_out8(i*2),
+      o_add   => s_out4(i)		
+      );
+  end generate;
+  
+  add2:for i in 1 to 2 generate
+    add_4 : add1 
+    port map
+      (
+      i_clk   => i_clk,
+      i_rst   => i_rst,
+      i_data1 => s_out4(i*2 - 1),
+      i_data2 => s_out4(i*2),
+      o_add   => s_out2(i)		
+      );
+  end generate;
+  
+  add_final : add1 
+  port map
+    (
+    i_clk   => i_clk,
+    i_rst   => i_rst,
+    i_data1 => s_out2(1),
+    i_data2 => s_out2(2),
+    o_add   => s_xcorr1		
+    );
+  
+end rtl;	

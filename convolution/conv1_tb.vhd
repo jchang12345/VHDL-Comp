@@ -1,0 +1,105 @@
+-- Hamdi Abdelbagi 
+-- convlution TB
+library IEEE;
+use IEEE.Std_logic_1164.all;
+use IEEE.Numeric_Std.all;
+use std.textio.all;	 
+use std.standard.all;
+
+entity conv1_tb is
+end;
+
+architecture bench of conv1_tb is
+  
+  component conv1 	
+    port
+      ( 
+      i_clk            : in    std_logic;
+      i_rst            : in    std_logic;
+      i_tx             : in    signed( 15 downto 0 );	
+      i_rx             : in    signed( 15 downto 0 );	
+      o_conv           :   out signed( 31 downto 0 );
+      o_conv_max  		   :   out signed( 31 downto 0 )
+      );  	
+  end component;
+
+  signal i_tx      		 : signed( 15 downto 0 ):=( others => '0' );
+  signal i_rx      		 : signed( 15 downto 0 ):=( others => '0' );
+  signal i_clk     		 : std_logic := '1';
+  signal i_rst     		 : std_logic := '0';
+  signal o_conv   		  : signed( 31 downto 0 ):=( others => '0' ) ;  
+  signal o_conv_max 		: signed( 31 downto 0 ):=( others => '0' ) ;  
+  
+begin
+  
+  uut: conv1 
+  port map 
+    ( 				  
+    i_clk       => i_clk,
+    i_rst       => i_rst,
+    i_tx	       => i_tx,
+    i_rx	       => i_rx,
+    o_conv      => o_conv,
+    o_conv_max   => o_conv_max
+    );
+    
+
+  i_clk   <= not i_clk after 5 ns;  --clocking                      
+  
+  rest1 : process   -- the rest values                            
+  begin                                 
+    i_rst <= '1';                     
+    wait for 20 ns;                   
+    i_rst <= '0';                     
+    wait;                             
+  end process;
+  
+  
+  stimulus1: process is
+		file F 			 : text open read_mode is "tx.txt";
+		variable l       : line;
+		variable i0      : integer;
+		variable i00     : integer:= 0;
+		variable space   : string (1 to 3);
+	begin
+		
+		while not endfile(F) loop		
+			readline(F,l);
+			read(l,i00);
+			wait until rising_edge(i_clk);
+			i_tx <= to_signed(i00,16);
+		end loop;
+    wait;
+	end process; 
+  
+    stimulus2: process is
+		file F 			 : text open read_mode is "rx.txt";
+		variable l       : line;
+		variable i0      : integer;
+		variable i00     : integer:= 0;
+		variable space   : string (1 to 3);
+	begin
+		
+		while not endfile(F) loop		
+			readline(F,l);
+			read(l,i00);
+			wait until rising_edge(i_clk);
+			i_rx <= to_signed(i00,16);
+		end loop;
+		
+		wait;
+	end process; 
+ 
+  stimulus3: process is
+    file file1	   : text open WRITE_MODE is "out_conv.txt";
+    variable L1    : line;
+    variable han0  : integer;
+    variable space : string (1 to 5);
+  begin		
+    wait until rising_edge(i_clk) ; 
+    han0 :=  to_integer(o_conv); 		
+    write(L1,han0); 
+    writeline(file1 , L1);		
+  end process; 
+  
+end;

@@ -1,0 +1,249 @@
+-- Hamdi Abdelbagi 
+-- xcorr TB
+library IEEE;
+use IEEE.Std_logic_1164.all;
+use IEEE.Numeric_Std.all;
+use std.textio.all;	 
+use std.standard.all;
+
+entity xcorr1_tb is
+end;
+
+architecture bench of xcorr1_tb is
+  
+  component xcorr1 	
+    port
+      ( 
+      i_clk            : in    std_logic;
+      i_rst            : in    std_logic;
+      i_tx             : in    signed( 15 downto 0 );	
+      i_rx             : in    signed( 15 downto 0 );	
+      o_xcorr          :   out signed( 31 downto 0 );
+      o_cnt_max		 :   out integer;
+      o_valid_max		 :   out std_logic
+      );  	
+  end component;
+  
+  component demixer1 is
+    
+    port (
+      CLOCK           : in  std_logic;
+      
+      RESET_N         : in  std_logic;
+      -- Active low, aynchronous reset
+      
+      ENABLE          : in  std_logic;
+      -- Specifies a valid incoming sample is valid
+      
+      DATA            : in  signed(15 downto 0);                        -- real-valued input
+      -- Input data
+      
+      DDC_VALID       : out std_logic;
+      -- Indicated baseband samples are valid
+      
+      DDC_DATA_I      : out signed(15 downto 0);
+      -- Baseband output, in-phase component
+      
+      DDC_DATA_Q      : out signed(15 downto 0)
+      -- Baseband output, quadrature component
+      );
+  end component;
+  
+  signal i_tx      		 : signed( 15 downto 0 ):=( others => '0' );
+  signal i_rx      		 : signed( 15 downto 0 ):=( others => '0' );
+  signal i_clk     		 : std_logic := '1';
+  signal i_rst     		 : std_logic := '0';
+  signal o_xcorr   		 : signed( 31 downto 0 ):=( others => '0' ) ;  
+  signal o_cnt_max 		 : integer;
+  signal o_valid_max		 : std_logic;
+  
+  signal ddc_valid            : std_logic;
+	signal ddc_data_i1           : signed(15 downto 0);
+	signal ddc_data_q1           : signed(15 downto 0); 
+  signal IN_DATA1              : signed(15 downto 0);
+  
+  signal ddc_data_i2           : signed(15 downto 0);
+	signal ddc_data_q2           : signed(15 downto 0); 
+  signal IN_DATA2              : signed(15 downto 0);
+  
+begin
+  
+  uut: xcorr1 
+  port map 
+    ( 				  
+    i_clk       => i_clk,
+    i_rst       => i_rst,
+    i_tx	      => i_tx,
+    i_rx	      => i_rx,
+    o_xcorr     => o_xcorr,
+    o_cnt_max   => o_cnt_max,
+    o_valid_max => o_valid_max
+    );
+    
+    DigitalDownMix1 : demixer1
+	port map (
+		CLOCK               => i_clk,
+		RESET_N             => '1',
+		ENABLE              => '1',
+		DATA                => IN_DATA1,
+		DDC_VALID           => open, 
+		DDC_DATA_I          => ddc_data_i1,
+		DDC_DATA_Q          => ddc_data_q1 
+		);
+    
+    DigitalDownMix2 : demixer1
+	port map (
+		CLOCK               => i_clk,
+		RESET_N             => '1',
+		ENABLE              => '1',
+		DATA                => IN_DATA2,
+		DDC_VALID           => ddc_valid, 
+		DDC_DATA_I          => ddc_data_i2,
+		DDC_DATA_Q          => ddc_data_q2 
+		);
+  
+  i_clk   <= not i_clk after 5 ns;  --clocking                      
+  
+  rest1 : process   -- the rest values                            
+  begin                                 
+    i_rst <= '1';                     
+    wait for 20 ns;                   
+    i_rst <= '0';                     
+    wait;                             
+  end process;
+  
+  
+  stimulus1: process is
+		file F 			 : text open read_mode is "tx3.txt";
+		variable l       : line;
+		variable i0      : integer;
+		variable i00     : integer:= 0;
+		variable space   : string (1 to 3);
+	begin
+		
+		while not endfile(F) loop		
+			readline(F,l);
+			read(l,i00);
+			wait until rising_edge(i_clk);
+			IN_DATA1 <= to_signed(i00,16);
+		end loop;
+    wait;
+	end process; 
+  
+    stimulus2: process is
+		file F 			 : text open read_mode is "rx3.txt";
+		variable l       : line;
+		variable i0      : integer;
+		variable i00     : integer:= 0;
+		variable space   : string (1 to 3);
+	begin
+		
+		while not endfile(F) loop		
+			readline(F,l);
+			read(l,i00);
+			wait until rising_edge(i_clk);
+			IN_DATA2 <= to_signed(i00,16);
+		end loop;
+		
+		wait;
+	end process; 
+  
+  -- This is just for verfication purpose *+*+*+*+*+*++*++*+*++*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+
+	stimulus5: process is
+		file file1	   : text open WRITE_MODE is "i_result_tx.txt";
+		variable L1    : line;
+		variable han0  : integer;
+		variable han1  : integer;
+		variable space : string (1 to 5);
+	begin		
+		wait until rising_edge(i_clk) and (ddc_valid = '1'); 
+		han0 :=  to_integer(signed(ddc_data_i1)); 		
+		write(L1,han0); 
+		writeline(file1 , L1);		
+	end process;
+	
+	stimulus6: process is
+		file file1	  : text open WRITE_MODE is "q_result_tx.txt";
+		variable L1   : line;
+		variable han0 : integer;
+		variable han1 : integer;
+	begin		
+		wait until rising_edge(i_clk) and (ddc_valid = '1'); 
+		han0 :=  to_integer(signed(ddc_data_q1));	
+		write(L1,han0); 
+		writeline(file1 , L1);	
+	end process; 
+  
+  
+  stimulus77: process is
+		file file1	   : text open WRITE_MODE is "i_result_rx.txt";
+		variable L1    : line;
+		variable han0  : integer;
+		variable han1  : integer;
+		variable space : string (1 to 5);
+	begin		
+		wait until rising_edge(i_clk) and (ddc_valid = '1'); 
+		han0 :=  to_integer(signed(ddc_data_i2)); 		
+		write(L1,han0); 
+		writeline(file1 , L1);		
+	end process;
+	
+	stimulus88: process is
+		file file1	  : text open WRITE_MODE is "q_result_rx.txt";
+		variable L1   : line;
+		variable han0 : integer;
+		variable han1 : integer;
+	begin		
+		wait until rising_edge(i_clk) and (ddc_valid = '1'); 
+		han0 :=  to_integer(signed(ddc_data_q2));	
+		write(L1,han0); 
+		writeline(file1 , L1);	
+	end process;
+	-- End of verfication *+*+*+*+*+*++*++*+*++*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*++*++*+*++*+*+
+  
+  stimulus111: process is
+    file F 			     : text open read_mode is "i_result_tx.txt";
+    variable l       : line;
+    variable i0      : integer;
+    variable i00     : integer:= 0;
+    variable space   : string (1 to 3);
+  begin  
+    while not endfile(F) loop		
+      readline(F,l);
+      read(l,i00);
+      wait until rising_edge(i_clk);
+      i_tx <= to_signed(i00,16);
+    end loop;
+    wait;
+  end process;
+  
+  stimulus112: process is
+    file F 			     : text open read_mode is "i_result_rx.txt";
+    variable l       : line;
+    variable i0      : integer;
+    variable i00     : integer:= 0;
+    variable space   : string (1 to 3);
+  begin  
+    while not endfile(F) loop		
+      readline(F,l);
+      read(l,i00);
+      wait until rising_edge(i_clk);
+      i_rx <= to_signed(i00,16);
+    end loop;
+    wait;
+  end process;
+  
+  stimulus113: process is
+    file file1	   : text open WRITE_MODE is "out_xcorr.txt";
+    variable L1    : line;
+    variable han0  : integer;
+    variable han1  : integer;
+    variable space : string (1 to 5);
+  begin		
+    wait until rising_edge(i_clk) ; 
+    han0 :=  to_integer(signed(o_xcorr)); 		
+    write(L1,han0); 
+    writeline(file1 , L1);		
+  end process; 
+  
+end;
